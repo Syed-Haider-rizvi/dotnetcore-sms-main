@@ -52,7 +52,7 @@ pipeline {
                     $credentials = New-Object System.Management.Automation.PSCredential($env:CREDENTIAL_USERNAME, (ConvertTo-SecureString $env:CREDENTIAL_PASSWORD -AsPlainText -Force))
 
                     
-                    New-PSDrive -Name X -PSProvider FileSystem -Root "\\\\172.16.14.79\\coreapp2" -Persist -Credential $credentials
+                    New-PSDrive -Name X -PSProvider FileSystem -Root "\\\\172.16.14.79\\coreapp3" -Persist -Credential $credentials
 
                     
                     Copy-Item -Path './publish/*' -Destination 'X:' -Force
