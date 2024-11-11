@@ -54,7 +54,7 @@ pipeline {
                     New-PSDrive -Name X -PSProvider FileSystem -Root "\\\\172.16.14.79\\coreapp2" -Persist -Credential $credentials
 
                     
-                    Copy-Item -Path '.\publish\*' -Destination 'X:' -Force
+                    Copy-Item -Path './publish/*' -Destination 'X:' -Force
 
                     
                     Remove-PSDrive -Name X
