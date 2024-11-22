@@ -58,7 +58,7 @@ pipeline {
                     Copy-Item -Path './publish/*' -Destination 'X:' -Force
 
                     
-                    Remove-PSDrive -Name X
+                    Remove-PSDrive -Name Z
                     '''
                 }
                 }
