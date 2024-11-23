@@ -16,7 +16,6 @@ pipeline {
             steps {
                 script {
                     // Restoring dependencies
-                    //bat "cd ${DOTNET_CLI_HOME} && dotnet restore"
                     bat "dotnet restore"
 
                     // Building the application
@@ -39,28 +38,29 @@ pipeline {
                 script {
                     // Publishing the application
                     bat "dotnet publish ./webapp/webapp.csproj --no-restore --configuration Release --output ./publish"
-
                 }
             }
         }
+
         stage('Deploy') {
             steps {
                 script {
+                    // Using withCredentials to inject credentials
                     withCredentials([usernamePassword(credentialsId: 'coreuser', passwordVariable: 'CREDENTIAL_PASSWORD', usernameVariable: 'CREDENTIAL_USERNAME')]) {
-                    powershell '''
-                    
-                    $credentials = New-Object System.Management.Automation.PSCredential($env:CREDENTIAL_USERNAME, (ConvertTo-SecureString $env:CREDENTIAL_PASSWORD -AsPlainText -Force))
+                        powershell '''
+                        # Create a PSCredential object from the environment variables for username and password
+                        $credentials = New-Object System.Management.Automation.PSCredential($env:CREDENTIAL_USERNAME, (ConvertTo-SecureString $env:CREDENTIAL_PASSWORD -AsPlainText -Force))
 
-                    
-                    New-PSDrive -Name X -PSProvider FileSystem -Root "\\\\WIN-LASFB11DPMP\\coreapp3" -Persist -Credential $credentials
+                        # Create a new drive 'X' pointing to the remote share with the specified credentials
+                        New-PSDrive -Name X -PSProvider FileSystem -Root "\\\\WIN-LASFB11DPMP\\coreapp3" -Persist -Credential $credentials
 
-                    
-                    Copy-Item -Path './publish/*' -Destination 'X:' -Force
+                        # Copy files from the publish directory to the remote location
+                        Copy-Item -Path './publish/*' -Destination 'X:' -Force
 
-                    
-                    Remove-PSDrive -Name Z
-                    '''
-                }
+                        # Clean up by removing the drive
+                        Remove-PSDrive -Name X
+                        '''
+                    }
                 }
             }
         }
@@ -69,6 +69,9 @@ pipeline {
     post {
         success {
             echo 'Build, test, and publish successful!'
+        }
+        failure {
+            echo 'There was an error during the build or deployment process.'
         }
     }
 }
